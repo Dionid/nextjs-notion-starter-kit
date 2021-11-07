@@ -1,17 +1,31 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import { GetServerSideProps } from 'next'
 
-import { SiteMap } from '../lib/types'
-import { host, sitemapOnlyPageUrlOverridden } from '../lib/config'
+import { CanonicalPageMap, SiteMap } from '../lib/types'
+import { host, removeApiPrefixFromSitemapAndRobotsTxtPages, sitemapOnlyPageUrlOverridden } from '../lib/config'
 import { getOnlyUrlOverriddenSiteMaps, getSiteMaps } from '../lib/get-site-maps'
-import * as config  from '../lib/config'
 import * as types from '../lib/types'
 
-export default async (
-  req: NextApiRequest,
-  res: NextApiResponse
-): Promise<void> => {
+export const getServerSideProps: GetServerSideProps = async (
+  { req,
+    res }
+    ) => {
+  if (!removeApiPrefixFromSitemapAndRobotsTxtPages) {
+    return {
+      redirect: {
+        destination: `/api/sitemap.xml`,
+        statusCode: 301,
+      }
+    }
+  }
+
   if (req.method !== 'GET') {
-    return res.status(405).send({ error: 'method not allowed' })
+    res.statusCode = 405
+    res.setHeader("Content-Type", "application/json")
+    res.write(JSON.stringify({ error: "method not allowed" }))
+    res.end()
+    return {
+      props: {}
+    }
   }
 
   let siteMaps: types.SiteMap[]
@@ -27,12 +41,16 @@ export default async (
     'public, s-maxage=3600, max-age=3600, stale-while-revalidate=3600'
   )
   res.setHeader('Content-Type', 'text/xml')
-  res.write(createSitemap(siteMaps[0]))
+  res.write(createSitemap(siteMaps[0].canonicalPageMap))
   res.end()
+
+  return {
+    props: {}
+  }
 }
 
 const createSitemap = (
-  siteMap: SiteMap
+  canonicalPageMap: CanonicalPageMap
 ) => `<?xml version="1.0" encoding="UTF-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       <url>
@@ -43,7 +61,7 @@ const createSitemap = (
         <loc>${host}/</loc>
       </url>
 
-      ${Object.keys(siteMap.canonicalPageMap)
+      ${Object.keys(canonicalPageMap)
         .map((canonicalPagePath) =>
           `
             <url>
@@ -54,3 +72,7 @@ const createSitemap = (
         .join('')}
     </urlset>
     `
+
+const SiteMapXml: React.FC = () => null
+
+export default SiteMapXml
