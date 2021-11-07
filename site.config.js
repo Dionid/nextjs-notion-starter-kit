@@ -57,5 +57,10 @@ module.exports = {
   //   '067dd719a912471ea9a3ac10710e7fdf': 'Some description unique for `/foo`',
   //   '0be6efce9daf42688f65c76b89f8eb27': 'Some description unique for `/bar`'
   // }
-  pageDescriptionOverrides: null
+  pageDescriptionOverrides: null,
+
+  // if you want to generate sitemap.xml only with url overrided
+  // by `pageUrlOverrides` prop, that will make SEO robots only to
+  // index pages that urls have been overridden
+  sitemapOnlyPageUrlOverridden: false
 }
