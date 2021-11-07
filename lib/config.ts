@@ -40,6 +40,8 @@ export const pageDescriptionOverrides = getSiteConfig('pageDescriptionOverrides'
 
 export const sitemapOnlyPageUrlOverridden = getSiteConfig('sitemapOnlyPageUrlOverridden')
 
+export const removeApiPrefixFromSitemapAndRobotsTxtPages = getSiteConfig('removeApiPrefixFromSitemapAndRobotsTxtPages')
+
 // general site config
 export const name: string = getSiteConfig('name')
 export const author: string = getSiteConfig('author')
